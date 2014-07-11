@@ -1,0 +1,81 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ARRAY_SIZE_X	BasicDemo.cpp	18;"	d	file:
+ARRAY_SIZE_Y	BasicDemo.cpp	19;"	d	file:
+ARRAY_SIZE_Z	BasicDemo.cpp	20;"	d	file:
+BASIC_DEMO_H	BasicDemo.h	16;"	d
+BasicDemo	BasicDemo.h	/^	BasicDemo()$/;"	f	class:BasicDemo	access:public	signature:()
+BasicDemo	BasicDemo.h	/^class BasicDemo : public PlatformDemoApplication$/;"	c	inherits:PlatformDemoApplication
+BasicDemo::BasicDemo	BasicDemo.h	/^	BasicDemo()$/;"	f	class:BasicDemo	access:public	signature:()
+BasicDemo::Create	BasicDemo.h	/^	static DemoApplication* Create()$/;"	f	class:BasicDemo	access:public	signature:()
+BasicDemo::clientMoveAndDisplay	BasicDemo.cpp	/^void BasicDemo::clientMoveAndDisplay()$/;"	f	class:BasicDemo	signature:()
+BasicDemo::clientMoveAndDisplay	BasicDemo.h	/^	virtual void clientMoveAndDisplay();$/;"	p	class:BasicDemo	access:public	signature:()
+BasicDemo::clientResetScene	BasicDemo.cpp	/^void	BasicDemo::clientResetScene()$/;"	f	class:BasicDemo	signature:()
+BasicDemo::clientResetScene	BasicDemo.h	/^	virtual void	clientResetScene();$/;"	p	class:BasicDemo	access:public	signature:()
+BasicDemo::displayCallback	BasicDemo.cpp	/^void BasicDemo::displayCallback(void) {$/;"	f	class:BasicDemo	signature:(void)
+BasicDemo::displayCallback	BasicDemo.h	/^	virtual void displayCallback();$/;"	p	class:BasicDemo	access:public	signature:()
+BasicDemo::exitPhysics	BasicDemo.cpp	/^void	BasicDemo::exitPhysics()$/;"	f	class:BasicDemo	signature:()
+BasicDemo::exitPhysics	BasicDemo.h	/^	void	exitPhysics();$/;"	p	class:BasicDemo	access:public	signature:()
+BasicDemo::initPhysics	BasicDemo.cpp	/^void	BasicDemo::initPhysics()$/;"	f	class:BasicDemo	signature:()
+BasicDemo::initPhysics	BasicDemo.h	/^	void	initPhysics();$/;"	p	class:BasicDemo	access:public	signature:()
+BasicDemo::m_broadphase	BasicDemo.h	/^	btBroadphaseInterface*	m_broadphase;$/;"	m	class:BasicDemo	access:private
+BasicDemo::m_collisionConfiguration	BasicDemo.h	/^	btDefaultCollisionConfiguration* m_collisionConfiguration;$/;"	m	class:BasicDemo	access:private
+BasicDemo::m_collisionShapes	BasicDemo.h	/^	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;$/;"	m	class:BasicDemo	access:private
+BasicDemo::m_dispatcher	BasicDemo.h	/^	btCollisionDispatcher*	m_dispatcher;$/;"	m	class:BasicDemo	access:private
+BasicDemo::m_solver	BasicDemo.h	/^	btConstraintSolver*	m_solver;$/;"	m	class:BasicDemo	access:private
+BasicDemo::myTickCallback	BasicDemo.cpp	/^void BasicDemo::myTickCallback(btDynamicsWorld *world, btScalar timeStep) {$/;"	f	class:BasicDemo	signature:(btDynamicsWorld *world, btScalar timeStep)
+BasicDemo::myTickCallback	BasicDemo.h	/^    void myTickCallback(btDynamicsWorld *world, btScalar timeStep);$/;"	p	class:BasicDemo	access:public	signature:(btDynamicsWorld *world, btScalar timeStep)
+BasicDemo::~BasicDemo	BasicDemo.h	/^	virtual ~BasicDemo()$/;"	f	class:BasicDemo	access:public	signature:()
+CMAKE_BINARY_DIR	Makefile	/^CMAKE_BINARY_DIR = \/home\/tom\/dunchen\/bullet-2.82-r2704$/;"	m
+CMAKE_COMMAND	Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
+CMAKE_EDIT_COMMAND	Makefile	/^CMAKE_EDIT_COMMAND = \/usr\/bin\/cmake-gui$/;"	m
+CMAKE_SOURCE_DIR	Makefile	/^CMAKE_SOURCE_DIR = \/home\/tom\/dunchen\/bullet-2.82-r2704$/;"	m
+Create	BasicDemo.h	/^	static DemoApplication* Create()$/;"	f	class:BasicDemo	access:public	signature:()
+EQUALS	Makefile	/^EQUALS = =$/;"	m
+MAX_PROXIES	BasicDemo.cpp	23;"	d	file:
+MyOverlapCallback	BasicDemo.cpp	/^	MyOverlapCallback(const btVector3& aabbMin, const btVector3& aabbMax ) : m_queryAabbMin(aabbMin),m_queryAabbMax(aabbMax),m_numOverlap(0)	{}$/;"	f	struct:MyOverlapCallback	access:public	signature:(const btVector3& aabbMin, const btVector3& aabbMax )
+MyOverlapCallback	BasicDemo.cpp	/^struct	MyOverlapCallback : public btBroadphaseAabbCallback$/;"	s	file:	inherits:btBroadphaseAabbCallback
+MyOverlapCallback::MyOverlapCallback	BasicDemo.cpp	/^	MyOverlapCallback(const btVector3& aabbMin, const btVector3& aabbMax ) : m_queryAabbMin(aabbMin),m_queryAabbMax(aabbMax),m_numOverlap(0)	{}$/;"	f	struct:MyOverlapCallback	access:public	signature:(const btVector3& aabbMin, const btVector3& aabbMax )
+MyOverlapCallback::m_numOverlap	BasicDemo.cpp	/^	int m_numOverlap;$/;"	m	struct:MyOverlapCallback	file:	access:public
+MyOverlapCallback::m_queryAabbMax	BasicDemo.cpp	/^	btVector3 m_queryAabbMax;$/;"	m	struct:MyOverlapCallback	file:	access:public
+MyOverlapCallback::m_queryAabbMin	BasicDemo.cpp	/^	btVector3 m_queryAabbMin;$/;"	m	struct:MyOverlapCallback	file:	access:public
+MyOverlapCallback::process	BasicDemo.cpp	/^	virtual bool	process(const btBroadphaseProxy* proxy)$/;"	f	struct:MyOverlapCallback	access:public	signature:(const btBroadphaseProxy* proxy)
+PlatformDemoApplication	BasicDemo.h	20;"	d
+PlatformDemoApplication	BasicDemo.h	23;"	d
+RM	Makefile	/^RM = \/usr\/bin\/cmake -E remove -f$/;"	m
+SCALING	BasicDemo.cpp	26;"	d	file:
+SHELL	Makefile	/^SHELL = \/bin\/sh$/;"	m
+START_POS_X	BasicDemo.cpp	27;"	d	file:
+START_POS_Y	BasicDemo.cpp	28;"	d	file:
+START_POS_Z	BasicDemo.cpp	29;"	d	file:
+SUFFIXES	Makefile	/^SUFFIXES =$/;"	m
+clientMoveAndDisplay	BasicDemo.cpp	/^void BasicDemo::clientMoveAndDisplay()$/;"	f	class:BasicDemo	signature:()
+clientMoveAndDisplay	BasicDemo.h	/^	virtual void clientMoveAndDisplay();$/;"	p	class:BasicDemo	access:public	signature:()
+clientResetScene	BasicDemo.cpp	/^void	BasicDemo::clientResetScene()$/;"	f	class:BasicDemo	signature:()
+clientResetScene	BasicDemo.h	/^	virtual void	clientResetScene();$/;"	p	class:BasicDemo	access:public	signature:()
+createDemo	Win32BasicDemo.cpp	/^DemoApplication*	createDemo()$/;"	f	signature:()
+displayCallback	BasicDemo.cpp	/^void BasicDemo::displayCallback(void) {$/;"	f	class:BasicDemo	signature:(void)
+displayCallback	BasicDemo.h	/^	virtual void displayCallback();$/;"	p	class:BasicDemo	access:public	signature:()
+exitPhysics	BasicDemo.cpp	/^void	BasicDemo::exitPhysics()$/;"	f	class:BasicDemo	signature:()
+exitPhysics	BasicDemo.h	/^	void	exitPhysics();$/;"	p	class:BasicDemo	access:public	signature:()
+gDebugDraw	BasicDemo.cpp	/^static GLDebugDrawer gDebugDraw;$/;"	v	file:
+initPhysics	BasicDemo.cpp	/^void	BasicDemo::initPhysics()$/;"	f	class:BasicDemo	signature:()
+initPhysics	BasicDemo.h	/^	void	initPhysics();$/;"	p	class:BasicDemo	access:public	signature:()
+m_broadphase	BasicDemo.h	/^	btBroadphaseInterface*	m_broadphase;$/;"	m	class:BasicDemo	access:private
+m_collisionConfiguration	BasicDemo.h	/^	btDefaultCollisionConfiguration* m_collisionConfiguration;$/;"	m	class:BasicDemo	access:private
+m_collisionShapes	BasicDemo.h	/^	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;$/;"	m	class:BasicDemo	access:private
+m_dispatcher	BasicDemo.h	/^	btCollisionDispatcher*	m_dispatcher;$/;"	m	class:BasicDemo	access:private
+m_numOverlap	BasicDemo.cpp	/^	int m_numOverlap;$/;"	m	struct:MyOverlapCallback	file:	access:public
+m_queryAabbMax	BasicDemo.cpp	/^	btVector3 m_queryAabbMax;$/;"	m	struct:MyOverlapCallback	file:	access:public
+m_queryAabbMin	BasicDemo.cpp	/^	btVector3 m_queryAabbMin;$/;"	m	struct:MyOverlapCallback	file:	access:public
+m_solver	BasicDemo.h	/^	btConstraintSolver*	m_solver;$/;"	m	class:BasicDemo	access:private
+main	main.cpp	/^int main(int argc,char** argv)$/;"	f	signature:(int argc,char** argv)
+myTickCallback	BasicDemo.cpp	/^void BasicDemo::myTickCallback(btDynamicsWorld *world, btScalar timeStep) {$/;"	f	class:BasicDemo	signature:(btDynamicsWorld *world, btScalar timeStep)
+myTickCallback	BasicDemo.h	/^    void myTickCallback(btDynamicsWorld *world, btScalar timeStep);$/;"	p	class:BasicDemo	access:public	signature:(btDynamicsWorld *world, btScalar timeStep)
+objclass	BasicDemo.cpp	/^int objclass[3] ={0,1,2};$/;"	v
+process	BasicDemo.cpp	/^	virtual bool	process(const btBroadphaseProxy* proxy)$/;"	f	struct:MyOverlapCallback	access:public	signature:(const btBroadphaseProxy* proxy)
+~BasicDemo	BasicDemo.h	/^	virtual ~BasicDemo()$/;"	f	class:BasicDemo	access:public	signature:()
