@@ -107,6 +107,9 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 			continue;
 		if ((!(obA->getUserPointer()==NULL) && (((my_obj *)obA->getUserPointer())->flag==1)) && (!(obB->getUserPointer()==NULL) && (((my_obj *)obB->getUserPointer())->flag==1))) 
 		    continue;
+		if (obA->getUserPointer()==NULL) && (obB->getUserPointer()==NULL) 
+		    continue;
+
 		/*if 	(!(obA->getUserPointer()==NULL)) 
 		{
 			printf("1 %d \n",((my_obj *)obA->getUserPointer())->flag);
@@ -178,8 +181,17 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 						colShape->calculateLocalInertia(mass,localInertia);
 
 				    
+					quaternion lotowo=changecoor((objle+txl.getX())/2,txl.getY(),txl.getZ(),
+												ddd[ncount-1]->getWorldtransform()->getRotation()->getAngle(),
+								                 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getX(),
+												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getY(),
+												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getZ());
+
 					btTransform tt=ttt;
-					tt.setOrigin(btVector3((ttt.getOrigin().getX()+objle+tx)/2,ttt.getOrigin().getY(),ttt.getOrigin().getZ()));
+					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.x,
+											ttt.getOrigin().gety()+lotowo.y,
+											ttt.getOrigin().getz()+lotowo.z));
+
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(tt);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
@@ -210,9 +222,17 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 					if (isDynamic)
 						colShape->calculateLocalInertia(mass,localInertia2);
 					
-					tt=ttt;
+					quaternion lotowo2=changecoor((-objle+txl.getX())/2,txl.getY(),txl.getZ(),
+												ddd[ncount-1]->getWorldtransform()->getRotation()->getAngle(),
+								                 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getX(),
+												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getY(),
+												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getZ());
 
-					tt.setOrigin(btVector3((ttt.getOrigin().getX()-objle+tx)/2,ttt.getOrigin().getY(),ttt.getOrigin().getZ()));
+					tt=ttt;
+					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.x2,
+											ttt.getOrigin().gety()+lotowo.y2,
+											ttt.getOrigin().getz()+lotowo.z2));
+
                     btDefaultMotionState* myMotionState2 = new btDefaultMotionState(tt);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass,myMotionState2,colShape,localInertia2);
 					btRigidBody* body2 = new btRigidBody(rbInfo2);
@@ -225,18 +245,8 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 					body2->applyImpulse(btVector3(rigidBody2->getLinearVelocity().getX()/2,
 									           rigidBody2->getLinearVelocity().getY()/2,
 											   rigidBody2->getLinearVelocity().getZ()/2),btVector3(newbody2->length*0.8,0,0));
-					/*
-					myMotionState = new btDefaultMotionState(ttt);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo1(mass,myMotionState,colShape,localInertia);
-					body = new btRigidBody(rbInfo);
-					world->addRigidBody(body);
                     
-					myMotionState = new btDefaultMotionState(ttt);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass,myMotionState,colShape,localInertia);
-					body = new btRigidBody(rbInfo);
-					world->addRigidBody(body);
-                    */
-                    lflag=1;
+					lflag=1;
 			}
 		}
 	}
