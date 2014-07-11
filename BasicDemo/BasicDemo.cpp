@@ -107,7 +107,7 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 			continue;
 		if ((!(obA->getUserPointer()==NULL) && (((my_obj *)obA->getUserPointer())->flag==1)) && (!(obB->getUserPointer()==NULL) && (((my_obj *)obB->getUserPointer())->flag==1))) 
 		    continue;
-		if (obA->getUserPointer()==NULL) && (obB->getUserPointer()==NULL) 
+		if ((obA->getUserPointer()==NULL) && (obB->getUserPointer()==NULL)) 
 		    continue;
 
 		/*if 	(!(obA->getUserPointer()==NULL)) 
@@ -182,10 +182,10 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 
 				    
 					quaternion lotowo=changecoor((objle+txl.getX())/2,txl.getY(),txl.getZ(),
-												ddd[ncount-1]->getWorldtransform()->getRotation()->getAngle(),
-								                 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getX(),
-												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getY(),
-												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getZ());
+												ddd[ncount-1]->getWorldTransform()->getRotation()->getAngle(),
+								                 ddd[ncount-1]->getWorldTransform()->getRotation()->getAxis().getX(),
+												 ddd[ncount-1]->getWorldTransform()->getRotation()->getAxis().getY(),
+												 ddd[ncount-1]->getWorldTransform()->getRotation()->getAxis().getZ());
 
 					btTransform tt=ttt;
 					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.x,
@@ -223,10 +223,10 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 						colShape->calculateLocalInertia(mass,localInertia2);
 					
 					quaternion lotowo2=changecoor((-objle+txl.getX())/2,txl.getY(),txl.getZ(),
-												ddd[ncount-1]->getWorldtransform()->getRotation()->getAngle(),
-								                 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getX(),
-												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getY(),
-												 ddd[ncount-1]->getWorldtransform()->getRotation()->getAxis().getZ());
+												ddd[ncount-1]->getWorldTransform()->getRotation()->getAngle(),
+								                 ddd[ncount-1]->getWorldTransform()->getRotation()->getAxis().getX(),
+												 ddd[ncount-1]->getWorldTransform()->getRotation()->getAxis().getY(),
+												 ddd[ncount-1]->getWorldTransform()->getRotation()->getAxis().getZ());
 
 					tt=ttt;
 					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.x2,
