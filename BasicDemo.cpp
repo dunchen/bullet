@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 1
-#define ARRAY_SIZE_Y 1
-#define ARRAY_SIZE_Z 1
+#define ARRAY_SIZE_Y 5
+#define ARRAY_SIZE_Z 5
 
 
 //maximum number of objects (and allow user to shoot additional boxes)
@@ -40,135 +40,11 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 
 
-typedef struct
+btVector3 changecoor(btVector3 t,btMatrix3x3 m)
 {
-              float t; // real-component
-              float x; // x-component
-              float y; // y-component
-              float z; // z-component
-} quaternion;
-  
+	return btVector3(m.getColumn(0).dot(t),m.getColumn(1).dot(t),m.getColumn(2).dot(t));
 
-//// Bill 注：Kakezan 在日语里是 “乘法”的意思
-quaternion Kakezan(quaternion left, quaternion right)
-{
-              quaternion ans;
-              float d1, d2, d3, d4;
-  
-              d1 = left.t * right.t;
-              d2 = -left.x * right.x;
-              d3 = -left.y * right.y;
-              d4 = -left.z * right.z;
-              ans.t = d1+ d2+ d3+ d4;
-  
-              d1 = left.t * right.x;
-              d2 = right.t * left.x;
-              d3 = left.y * right.z;
-              d4 = -left.z * right.y;
-              ans.x = d1+ d2+ d3+ d4;
-  
-              d1 = left.t * right.y;
-              d2 = right.t * left.y;
-              d3 = left.z * right.x;
-              d4 = -left.x * right.z;
-              ans.y = d1+ d2+ d3+ d4;
-  
-              d1 = left.t * right.z;
-              d2 = right.t * left.z;
-              d3 = left.x * right.y;
-              d4 = -left.y * right.x;
-              ans.z = d1+ d2+ d3+ d4;
-              
-              return ans;
 }
-  
-//// Make Rotational quaternion
-quaternion MakeRotationalQuaternion(float radian, float AxisX, float AxisY, float AxisZ)
-{
-              quaternion ans;
-              float norm;
-              float ccc, sss;
-              
-              ans.t = ans.x = ans.y = ans.z = 0.0;
-  
-              norm = AxisX * AxisX + AxisY * AxisY + AxisZ * AxisZ;
-              if(norm <= 0.0) return ans;
-  
-              norm = 1.0 / sqrt(norm);
-              AxisX *= norm;
-              AxisY *= norm;
-              AxisZ *= norm;
-  
-              ccc = cos(0.5 * radian);
-              sss = sin(0.5 * radian);
-  
-              ans.t = ccc;
-              ans.x = sss * AxisX;
-              ans.y = sss * AxisY;
-              ans.z = sss * AxisZ;
-  
-              return ans;
-}
-  
-//// Put XYZ into quaternion
-quaternion PutXYZToQuaternion(float PosX, float PosY, float PosZ)
-{
-              quaternion ans;
-  
-              ans.t = 0.0;
-              ans.x = PosX;
-              ans.y = PosY;
-              ans.z = PosZ;
-  
-              return ans;
-}
-  
-///// main
-quaternion changecoor(float px,float py,float pz,float th,float ax,float ay,float az)
-		
-{
-              quaternion ppp, qqq, rrr;
-  /*
-              cout << "Point Position (x, y, z) " << endl;
-              cout << " x = ";
-              cin >> px;
-              cout << " y = ";
-              cin >> py;
-              cout << " z = ";
-              cin >> pz;*/
-              ppp = PutXYZToQuaternion(px, py, pz);
-  /*
-              while(1) {
-                            cout << "\nRotation Degree ? (Enter 0 to Quit) " << endl;
-                            cout << " angle = ";
-                            cin >> th;
-                            if(th == 0.0) break;
-  
-                            cout << "Rotation Axis Direction ? (x, y, z) " << endl;
-                            cout << " x = ";
-                            cin >> ax;
-                            cout << " y = ";
-                            cin >> ay;
-                            cout << " z = ";
-                            cin >> az;
-  
-  */
-                            //th *= 3.1415926535897932384626433832795 / 180.0; /// Degree -> radian;
-  
-                            qqq = MakeRotationalQuaternion(th, ax, ay, az);
-                            rrr = MakeRotationalQuaternion(-th, ax, ay, az);
-  
-                            ppp = Kakezan(rrr, ppp);
-                            ppp = Kakezan(ppp, qqq);
-  
-                           /* cout << "\nAnser X = " << ppp.x
-                                          << "\n Y = " << ppp.y
-                                          << "\n Z = " << ppp.z << endl;*/
-  
-              
-  
-              return ppp;
-} 
 
 
 double absa2(double x)
@@ -312,26 +188,16 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 						colShape->calculateLocalInertia(mass,localInertia);
 
 				    
-					quaternion lotowo=changecoor((objle+txl.getX())/2,txl.getY(),txl.getZ(),
-												ddd[ncount-1]->getWorldTransform().getRotation().getAngle(),
-								                 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getX(),
-												 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getY(),
-												 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getZ());
-
+				    btVector3 lotowo=changecoor(btVector3((objle+txl.getX())/2,txl.getY(),txl.getZ()),ddd[ncount-1]->getWorldTransform().getBasis());
 					btTransform tt=ttt;
-					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.x,
-											ttt.getOrigin().getY()+lotowo.y,
-											ttt.getOrigin().getZ()+lotowo.z));
-					tt.setRotation(ttt.getRotation());
+					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.getX(),
+											ttt.getOrigin().getY()+lotowo.getY(),
+											ttt.getOrigin().getZ()+lotowo.getZ()));
+					
 
-					lotowo=changecoor(txl.getX(),txl.getY(),txl.getZ(),
-												ddd[ncount-1]->getWorldTransform().getRotation().getAngle(),
-								                 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getX(),
-												 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getY(),
-												 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getZ());
-
-					printf("1  %f %f %f\n",lotowo.x,lotowo.y,lotowo.z);
-					printf("2  %f\n",tx-ttt.getOrigin().getX());
+					lotowo=changecoor(btVector3(txl.getX(),txl.getY(),txl.getZ()),ddd[ncount-1]->getWorldTransform().getBasis());
+					printf("0 %f\n",tx);
+					printf("1  %lf\n",lotowo.getX()+ttt.getOrigin().getX());
 
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(tt);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
@@ -363,17 +229,12 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 					if (isDynamic)
 						colShape->calculateLocalInertia(mass,localInertia2);
 					
-					quaternion lotowo2=changecoor((-objle+txl.getX())/2,txl.getY(),txl.getZ(),
-												ddd[ncount-1]->getWorldTransform().getRotation().getAngle(),
-								                 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getX(),
-												 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getY(),
-												 ddd[ncount-1]->getWorldTransform().getRotation().getAxis().getZ());
 
+					lotowo=changecoor(btVector3((-objle+txl.getX())/2,txl.getY(),txl.getZ()),ddd[ncount-1]->getWorldTransform().getBasis());
 					tt=ttt;
-					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo2.x,
-											ttt.getOrigin().getY()+lotowo2.y,
-											ttt.getOrigin().getZ()+lotowo2.z));
-					tt.setRotation(ttt.getRotation());
+					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.getX(),
+											ttt.getOrigin().getY()+lotowo.getY(),
+											ttt.getOrigin().getZ()+lotowo.getZ()));
 
 
                     btDefaultMotionState* myMotionState2 = new btDefaultMotionState(tt);
