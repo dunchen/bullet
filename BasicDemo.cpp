@@ -16,8 +16,8 @@ subject to the following restrictions:
 
 ///create 125 (5x5x5) dynamic object
 #define ARRAY_SIZE_X 1
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_Z 5
+#define ARRAY_SIZE_Y 1
+#define ARRAY_SIZE_Z 1
 
 
 //maximum number of objects (and allow user to shoot additional boxes)
@@ -28,6 +28,7 @@ subject to the following restrictions:
 #define START_POS_X 0
 #define START_POS_Y 10
 #define START_POS_Z -10
+#define MAXINT 32767
 
 #include "BasicDemo.h"
 #include "GlutStuff.h"
@@ -66,14 +67,164 @@ int ncount=0;
 //int lflag=0;
 /***********************/
 
-int objlength;
+//int objlength;
 
 struct my_obj
 {
 	int flag;
-	float length;
+	float length[3];
+	float mass;
 };
 
+
+btVector3 sertovec(float data[])
+{
+	return btVector3(data[0],data[1],data[2]);
+}
+
+void vectoser(btVector3 data,float t[])
+{
+	t[0]=data.getX();
+	t[1]=data.getY();
+	t[2]=data.getZ();
+	return;
+}
+
+int minaxis(btVector3 touchpoint, float *length)
+{
+	int min=0;
+	int mindifference=32767;
+	
+	
+	if ((length[0]-fabs(touchpoint.getX()))<mindifference)
+	{
+		min=0;
+		mindifference=(length[0]-fabs(touchpoint.getX()));
+	}
+	if ((length[1]-fabs(touchpoint.getY()))<mindifference)
+	{
+		min=1;
+		mindifference=(length[1]-fabs(touchpoint.getY()));
+	}
+	if ((length[2]-fabs(touchpoint.getZ()))<mindifference)
+	{
+		min=2;
+		mindifference=(length[2]-fabs(touchpoint.getZ()));
+	}
+	return min;
+}
+
+//output in clength[2][3]
+void calculatelength(float *length,btVector3& touchpoint,int axis,int& cutedge,float clength[][3])
+{
+	for (int i=0;i<2;i++)
+	{
+		for (int j=0;j<3;j++)
+		{
+			clength[i][j]=length[j];
+		}
+	}
+
+	switch (axis)
+	{
+		case 0:
+			{
+				if (length[1]<length[2])
+				{
+					clength[0][2]=fabs(-length[2]-touchpoint.getZ())/2;
+					clength[1][2]=fabs(length[2]-touchpoint.getZ())/2;
+					cutedge=2;
+				}
+				else
+				{
+					clength[0][1]=fabs(-length[1]-touchpoint.getY())/2;
+					clength[1][1]=fabs(length[1]-touchpoint.getY())/2;
+					cutedge=1;
+				}
+				break;
+			}
+		case 1:
+			{
+				if (length[0]<length[2])
+				{
+					clength[0][2]=fabs(-length[2]-touchpoint.getZ())/2;
+					clength[1][2]=fabs(length[2]-touchpoint.getZ())/2;
+					cutedge=2;
+				}
+				else
+				{
+					clength[0][0]=fabs(-length[0]-touchpoint.getX())/2;
+					clength[1][0]=fabs(length[0]-touchpoint.getX())/2;
+					cutedge=1;
+				}
+				break;
+			}
+		case 2:
+			{
+				if (length[0]<length[1])
+				{
+					clength[0][1]=fabs(-length[1]-touchpoint.getY())/2;
+					clength[1][1]=fabs(length[1]-touchpoint.getY())/2;
+					cutedge=1;
+				}
+				else
+				{
+					clength[0][0]=fabs(-length[0]-touchpoint.getX())/2;
+					clength[1][0]=fabs(length[0]-touchpoint.getX())/2;
+					cutedge=0;
+				}
+				break;
+			}
+	}
+
+	return;
+}
+
+//output in coor[2][3]
+void calculatenewcenter(btVector3& touchpoint,float *objlength,int axis, int cutedge,float coor[][3])
+{
+	float touchcoor[3];
+	touchcoor[0]=touchpoint.getX();
+	touchcoor[1]=touchpoint.getY();
+	touchcoor[2]=touchpoint.getZ();
+	
+	coor[0][axis]=0;
+	coor[0][cutedge]=(-objlength[cutedge]+touchcoor[cutedge])/2;
+	coor[0][3-axis-cutedge]=0;
+
+	coor[1][axis]=0;
+	coor[1][cutedge]=(objlength[cutedge]+touchcoor[cutedge])/2;
+	coor[1][3-axis-cutedge]=0;
+
+	return;
+}
+
+float calculatemass(float *length,float *objlength,float objmass)
+{
+	float cmass=objmass;
+	for(int i=0;i<2;i++)
+	{
+		cmass=cmass*(length[i])/(objlength[i]);
+	}
+	return cmass;
+}
+
+btVector3 calculateimpulsepoint(float *newcenter, float *length, btVector3 touchpoint, int cutedge)
+{
+	float touchcoor[3];
+	vectoser(touchpoint,touchcoor);
+	
+	float impulsepoint[3]={0,0,0};
+	if (newcenter[cutedge]<touchcoor[cutedge])
+	{
+		impulsepoint[cutedge]=length[cutedge];
+	}
+	else
+	{
+		impulsepoint[cutedge]=-length[cutedge];
+	}
+	return sertovec(impulsepoint);
+}
 ///The MyOverlapCallback is used to show how to collect object that overlap with a given bounding box defined by aabbMin and aabbMax. 
 ///See m_dynamicsWorld->getBroadphase()->aabbTest.
 struct	MyOverlapCallback : public btBroadphaseAabbCallback
@@ -117,16 +268,6 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 		if ((obA->getUserPointer()==NULL) && (obB->getUserPointer()==NULL)) 
 		    continue;
 
-		/*if 	(!(obA->getUserPointer()==NULL)) 
-		{
-			printf("1 %d \n",((my_obj *)obA->getUserPointer())->flag);
-		}
-		if 	(!(obB->getUserPointer()==NULL)) 
-		{
-			printf("2 %d \n",((my_obj *)obB->getUserPointer())->flag);
-		}
-		printf("\n");
-		continue;*/
 
 		int numContacts = contactManifold->getNumContacts();
 		int lflag=0;
@@ -142,18 +283,10 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 				btVector3& ptA1 = pt.m_localPointA;
 				btVector3& ptB1 = pt.m_localPointB;
 
-                //if (ncount>=1) continue;
-
-				float objle;
-				btTransform ttt;
-				float tx;
 				btVector3& txl=ptA1;
 				if ((!(obA->getUserPointer()==NULL)) && ((((my_obj *)obA->getUserPointer())->flag==1)))
 				{
-					ttt=obA->getWorldTransform();
-				    tx=(float)ptA.getX();
 					txl=ptA1;
-					objle=(((my_obj *)obA->getUserPointer())->length);
 					ddd[ncount]=obB;
 					ncount++;
 				    ddd[ncount]=obA;
@@ -161,95 +294,85 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 				}  
 				else
 				{
-				    ttt=obB->getWorldTransform();
-					tx=(float)ptB.getX();
 					txl=ptB1;
-					objle=(((my_obj *)obB->getUserPointer())->length);
 					ddd[ncount]=obA;
 					ncount++;
 				    ddd[ncount]=obB;
 					ncount++;
 				}
 				
-				//printf("%f\n",objle);
 
                     btRigidBody *rigidBody = btRigidBody::upcast(ddd[ncount-1]);
 					btRigidBody *rigidBody2=btRigidBody::upcast(ddd[ncount-2]);
 
-					my_obj* newbody=new my_obj;
-					newbody->length=absa2(ttt.getOrigin().getX()+objle-tx);
-					newbody->flag=1;
-		            btBoxShape* colShape = new btBoxShape(btVector3(newbody->length,SCALING*1,SCALING*1));
-					m_collisionShapes.push_back(colShape);
-                    btScalar	mass(10.f*(newbody->length/10));
-				    bool isDynamic = (mass != 0.f);
-					btVector3 localInertia(0,0,0);
-					if (isDynamic)
-						colShape->calculateLocalInertia(mass,localInertia);
 
+					float objle[3];
+					for (int i=0;i<3;i++) 
+						{objle[i]=((my_obj *)ddd[ncount-1]->getUserPointer())->length[i];}
+					int axis=minaxis(txl,objle);
+					
 				    
-				    btVector3 lotowo=changecoor(btVector3((objle+txl.getX())/2,txl.getY(),txl.getZ()),ddd[ncount-1]->getWorldTransform().getBasis());
-					btTransform tt=ttt;
-					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.getX(),
+
+					float objmass=((my_obj *)ddd[ncount-1]->getUserPointer())->mass;
+					btTransform ttt=ddd[ncount-1]->getWorldTransform();
+
+
+					float newlength[2][3];
+					int cutedge;
+					calculatelength(objle,txl,axis,cutedge,newlength);
+
+
+					float newcenters[2][3];
+					calculatenewcenter(txl,objle,axis,cutedge,newcenters);
+					
+
+					btTransform tt;
+					btVector3 lotowo;
+					
+					for (int i=0;i<2;i++)
+					{
+						my_obj* newbody=new my_obj;
+						for (int j=0;j<3;j++)
+							{newbody->length[j]=newlength[i][j];}
+						newbody->flag=1;
+			            btBoxShape* colShape = new btBoxShape(btVector3(newbody->length[0],newbody->length[1],newbody->length[2]));
+
+						m_collisionShapes.push_back(colShape);
+                    
+						btScalar	mass=calculatemass(newbody->length,objle,objmass);
+
+						newbody->mass=mass;
+
+						bool isDynamic = (mass != 0.f);
+						btVector3 localInertia(0,0,0);
+						if (isDynamic)
+							colShape->calculateLocalInertia(mass,localInertia);
+						
+
+						lotowo=changecoor(sertovec(newcenters[i]),ddd[ncount-1]->getWorldTransform().getBasis());
+						tt=ttt;
+						tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.getX(),
 											ttt.getOrigin().getY()+lotowo.getY(),
 											ttt.getOrigin().getZ()+lotowo.getZ()));
 					
-
-					lotowo=changecoor(btVector3(txl.getX(),txl.getY(),txl.getZ()),ddd[ncount-1]->getWorldTransform().getBasis());
-					printf("0 %f\n",tx);
-					printf("1  %lf\n",lotowo.getX()+ttt.getOrigin().getX());
-
-					btDefaultMotionState* myMotionState = new btDefaultMotionState(tt);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body = new btRigidBody(rbInfo);
-					body->setUserPointer(newbody);
+						btDefaultMotionState* myMotionState = new btDefaultMotionState(tt);
+						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
+						btRigidBody* body = new btRigidBody(rbInfo);
+						body->setUserPointer(newbody);
 					
-					//body->setMotionState(rigidBody->getMotionState());
-					body->setLinearVelocity(rigidBody->getVelocityInLocalPoint(btVector3((objle+txl.getX())/2,txl.getY(),txl.getZ())));
-					world->addRigidBody(body);
+						body->setLinearVelocity(rigidBody->getVelocityInLocalPoint(sertovec(newcenters[i])));
+						world->addRigidBody(body);
                     
-				    body->applyImpulse(btVector3(rigidBody2->getLinearVelocity().getX()/2,
+						body->applyImpulse(btVector3(rigidBody2->getLinearVelocity().getX()/2,
 									           rigidBody2->getLinearVelocity().getY()/2,
-											   rigidBody2->getLinearVelocity().getZ()/2),btVector3(-newbody->length,0,0));
-/*					printf("%f %f %f\n",rigidBody->getTotalForce().getX()*5,
-									           rigidBody->getTotalForce().getY()*5,
-											   rigidBody->getTotalForce().getZ()*5);
-					
-*/
-					my_obj* newbody2=new my_obj;
-					newbody2->length=absa2(ttt.getOrigin().getX()-objle-tx);
-					newbody2->flag=1;
-					colShape = new btBoxShape(btVector3(newbody2->length,SCALING*1,SCALING*1));
-					m_collisionShapes.push_back(colShape);
-					
-					mass=10.f*(newbody2->length/10);
-					isDynamic = (mass != 0.f);
-
-					btVector3 localInertia2(0,0,0);
-					if (isDynamic)
-						colShape->calculateLocalInertia(mass,localInertia2);
-					
-
-					lotowo=changecoor(btVector3((-objle+txl.getX())/2,txl.getY(),txl.getZ()),ddd[ncount-1]->getWorldTransform().getBasis());
-					tt=ttt;
-					tt.setOrigin(btVector3(ttt.getOrigin().getX()+lotowo.getX(),
-											ttt.getOrigin().getY()+lotowo.getY(),
-											ttt.getOrigin().getZ()+lotowo.getZ()));
+											   rigidBody2->getLinearVelocity().getZ()/2),
+							                   calculateimpulsepoint(newcenters[i],newbody->length,txl,cutedge));
+					}
 
 
-                    btDefaultMotionState* myMotionState2 = new btDefaultMotionState(tt);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass,myMotionState2,colShape,localInertia2);
-					btRigidBody* body2 = new btRigidBody(rbInfo2);
-					body2->setUserPointer(newbody2);
-                    
-					body2->setLinearVelocity(rigidBody->getVelocityInLocalPoint(btVector3((-objle+txl.getX())/2,txl.getY(),txl.getZ())));
 
-					world->addRigidBody(body2);
-				    
-					body2->applyImpulse(btVector3(rigidBody2->getLinearVelocity().getX()/2,
-									           rigidBody2->getLinearVelocity().getY()/2,
-											   rigidBody2->getLinearVelocity().getZ()/2),btVector3(newbody2->length*0.8,0,0));
-                    
+
+
 					lflag=1;
 			}
 		}
@@ -382,7 +505,7 @@ void	BasicDemo::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*10,SCALING*1,SCALING*1));
+		btBoxShape* colShape = new btBoxShape(btVector3(SCALING*10,SCALING*1*10,SCALING*1*10));
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 		m_collisionShapes.push_back(colShape);
 
@@ -422,7 +545,10 @@ void	BasicDemo::initPhysics()
 					
 					my_obj* objstack=new my_obj;
 					objstack->flag=1;
-					objstack->length=10;
+					objstack->length[0]=10;
+				    objstack->length[1]=10;
+					objstack->length[2]=10;
+					objstack->mass=10;
                     body->setUserPointer(objstack);
 
 					m_dynamicsWorld->addRigidBody(body);
