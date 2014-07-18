@@ -15,9 +15,9 @@ subject to the following restrictions:
 
 
 ///create 125 (5x5x5) dynamic object
-#define ARRAY_SIZE_X 0
-#define ARRAY_SIZE_Y 0
-#define ARRAY_SIZE_Z 0
+#define ARRAY_SIZE_X 1
+#define ARRAY_SIZE_Y 1
+#define ARRAY_SIZE_Z 1
 
 
 //maximum number of objects (and allow user to shoot additional boxes)
@@ -60,7 +60,6 @@ btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
 
 
 btCollisionObject* ddd[100];
- 
 int ncount=0;
 
 
@@ -70,23 +69,11 @@ int ncount=0;
 
 //int objlength;
 
-
-struct my_constraint
-{
-	btTypedConstraint* con;
-    float pivotA[3];
-	float pivotB[3];
-    btRigidBody* bodyB;
-	int numb;
-};
-
 struct my_obj
 {
 	int flag;
 	float length[3];
 	float mass;
-    my_constraint listcon[100];
-	int numcon;
 };
 
 
@@ -103,131 +90,6 @@ void vectoser(btVector3 data,float t[])
 	return;
 }
 
-void addmyconstraint(btDynamicsWorld *m_dynamicsWorld, btRigidBody* bodyA,btRigidBody* bodyB, float *pivotA, float *pivotB)
-{
-	int numcon=((my_obj*)bodyA->getUserPointer())->numcon;
-	for (int i=0;i<3;i++)
-	    {
-		    ((my_obj*)bodyA->getUserPointer())->listcon[numcon].pivotA[i]=pivotA[i];
-			((my_obj*)bodyA->getUserPointer())->listcon[numcon].pivotB[i]=pivotB[i];
-        }
-	((my_obj*)bodyA->getUserPointer())->numcon++;
-    
-	int numconb=((my_obj*)bodyB->getUserPointer())->numcon;
-	for (int i=0;i<3;i++)
-	    {
-		    ((my_obj*)bodyB->getUserPointer())->listcon[numconb].pivotA[i]=pivotB[i];
-			((my_obj*)bodyB->getUserPointer())->listcon[numconb].pivotB[i]=pivotA[i];
-        }
-	((my_obj*)bodyB->getUserPointer())->numcon++;
-    
-	btTypedConstraint* p2p = new btPoint2PointConstraint(*bodyA,*bodyB, sertovec(pivotA), sertovec(pivotB));
-    m_dynamicsWorld->addConstraint(p2p);
-
-    ((my_obj*)bodyA->getUserPointer())->listcon[numcon].con=p2p;
-	((my_obj*)bodyA->getUserPointer())->listcon[numcon].bodyB=bodyB;
-	((my_obj*)bodyA->getUserPointer())->listcon[numcon].numb=((my_obj*)bodyB->getUserPointer())->numcon-1;
-
-
-    ((my_obj*)bodyB->getUserPointer())->listcon[numcon].con=p2p;
-	((my_obj*)bodyB->getUserPointer())->listcon[numcon].bodyB=bodyA;
-	((my_obj*)bodyB->getUserPointer())->listcon[numcon].numb=((my_obj*)bodyA->getUserPointer())->numcon-1;
-
-}
-
-int splitcon(float *coor, int axis, int cutedge, btVector3 touchpoint)
-{
-	float touchcoor[3];
-	touchcoor[0]=touchpoint.getX();
-	touchcoor[1]=touchpoint.getY();
-	touchcoor[2]=touchpoint.getZ();
-    
-	if (coor[cutedge]<touchcoor[cutedge])
-	{return 0;}
-	else
-	{return 1;}
-}
-void removeandaddcon(btDynamicsWorld *m_dynamicsWorld, btRigidBody* bodyA,btRigidBody* newbody[], int axis, int cutedge, btVector3 touchpoint, float coordiffA[][3])
-{
-
-    for (int i=0;i<((my_obj*)bodyA->getUserPointer())->numcon;i++)
-		{
-			if ((((my_obj*)bodyA->getUserPointer())->listcon[i].pivotA[0]==0)
-						&& (((my_obj*)bodyA->getUserPointer())->listcon[i].pivotA[1]==0)
-                           && (((my_obj*)bodyA->getUserPointer())->listcon[i].pivotA[2]==0))
-			{continue;}
-
-            int opnum=splitcon(((my_obj*)bodyA->getUserPointer())->listcon[i].pivotA, axis, cutedge, touchpoint);
-			int numcon=((my_obj*)newbody[opnum]->getUserPointer())->numcon;
-
-			for (int j=0;j<3;j++)
-			{
-				((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].pivotA[j]=
-					       ((my_obj*)bodyA->getUserPointer())->listcon[i].pivotA[j]-coordiffA[opnum][j];
-
-				((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].pivotB[j]=
-					       ((my_obj*)bodyA->getUserPointer())->listcon[i].pivotB[j];
-			}
-
-
-			printf("\nllla\n");
-			for (int j=0;j<3;j++)
-			{
-			   printf("%f ",((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].pivotA[j]);
-			}
-			printf("\nlllb\n");
-			for (int j=0;j<3;j++)
-			{
-			   printf("%f ",((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].pivotB[j]);
-			}
-			printf("\n");
-
-			btTypedConstraint* p2p = new btPoint2PointConstraint(*newbody[opnum],
-						               *((my_obj*)bodyA->getUserPointer())->listcon[i].bodyB, 
-						               sertovec(((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].pivotA), 
-									   sertovec(((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].pivotB));
-
-            m_dynamicsWorld->addConstraint(p2p);
-            
-			((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].con=p2p;
-			((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].bodyB=((my_obj*)bodyA->getUserPointer())->listcon[i].bodyB;
-
-
-			btRigidBody* tempbodyB=((my_obj*)bodyA->getUserPointer())->listcon[i].bodyB;
-			
-			int numconb=((my_obj*)tempbodyB->getUserPointer())->numcon;
-
-			for (int j=0;j<3;j++)
-			{
-				((my_obj*)tempbodyB->getUserPointer())->listcon[numconb].pivotA[j]=
-					       ((my_obj*)bodyA->getUserPointer())->listcon[i].pivotB[j];
-
-				((my_obj*)tempbodyB->getUserPointer())->listcon[numconb].pivotB[j]=
-					       ((my_obj*)newbody[opnum]->getUserPointer())->listcon[i].pivotA[j];
-			}
-			((my_obj*)tempbodyB->getUserPointer())->listcon[numconb].con=p2p;
-			((my_obj*)tempbodyB->getUserPointer())->listcon[numconb].bodyB=newbody[opnum];
-            ((my_obj*)tempbodyB->getUserPointer())->listcon[numconb].numb=numcon;
-			((my_obj*)tempbodyB->getUserPointer())->numcon++;
-			
-
-			for (int j=0;j<3;j++)
-			{
-				((my_obj*)tempbodyB->getUserPointer())->listcon[((my_obj*)bodyA->getUserPointer())->listcon[i].numb].pivotA[j]=0;
-			}
-            
-            ((my_obj*)newbody[opnum]->getUserPointer())->listcon[numcon].numb=numconb;
-			((my_obj*)newbody[opnum]->getUserPointer())->numcon++;
-
-			for (int j=0;j<3;j++)
-			{
-				((my_obj*)bodyA->getUserPointer())->listcon[i].pivotA[j]=0;
-			}
-
-			m_dynamicsWorld->removeConstraint(((my_obj*)bodyA->getUserPointer())->listcon[i].con);
-
-		}
-}
 int minaxis(btVector3 touchpoint, float *length)
 {
 	int min=0;
@@ -465,17 +327,14 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 					
 
 					btTransform tt;
-		   			btVector3 lotowo;
-					btRigidBody* arrbody[2];
-
+					btVector3 lotowo;
+					
 					for (int i=0;i<2;i++)
 					{
 						my_obj* newbody=new my_obj;
 						for (int j=0;j<3;j++)
 							{newbody->length[j]=newlength[i][j];}
 						newbody->flag=1;
-						newbody->numcon=0;
-
 			            btBoxShape* colShape = new btBoxShape(btVector3(newbody->length[0],newbody->length[1],newbody->length[2]));
 
 						m_collisionShapes.push_back(colShape);
@@ -508,11 +367,12 @@ void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 									           rigidBody2->getLinearVelocity().getY()/2,
 											   rigidBody2->getLinearVelocity().getZ()/2),
 							                   calculateimpulsepoint(newcenters[i],newbody->length,txl,cutedge));
-						
-						arrbody[i]=body;
 					}
 
-					removeandaddcon(world, rigidBody, arrbody, axis, cutedge, txl, newcenters);
+
+
+
+
 					lflag=1;
 			}
 		}
@@ -602,7 +462,7 @@ void	BasicDemo::initPhysics()
 	m_dynamicsWorld->setInternalTickCallback(myTickCallback,0,true);
 	//****************
 
-	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+	m_dynamicsWorld->setGravity(btVector3(0,-1,0));
 
 	///create a few basic rigid bodies
 	btBoxShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
@@ -653,7 +513,7 @@ void	BasicDemo::initPhysics()
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar	mass(50.f);
+		btScalar	mass(10.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
@@ -673,81 +533,28 @@ void	BasicDemo::initPhysics()
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(SCALING*btVector3(
-										btScalar(20.0*i + start_x),
+										btScalar(2.0*i + start_x),
 										btScalar(20+2.0*k + start_y),
-										btScalar(20.0*j + start_z)));
+										btScalar(2.0*j + start_z)));
 
 			
 					//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 					btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 					btRigidBody* body = new btRigidBody(rbInfo);
-	                				
+					
 					my_obj* objstack=new my_obj;
 					objstack->flag=1;
 					objstack->length[0]=10;
 				    objstack->length[1]=10;
 					objstack->length[2]=10;
-					objstack->mass=20;
+					objstack->mass=10;
                     body->setUserPointer(objstack);
 
 					m_dynamicsWorld->addRigidBody(body);
 				}
 			}
 		}
-                    
-         			startTransform.setOrigin(btVector3(20,20,20));
-		            btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody*  body = new btRigidBody(rbInfo);
-					float pivina[3]={10,10,10};
-					my_obj* objstack=new my_obj;
-					objstack->flag=1;
-					objstack->length[0]=10;
-				    objstack->length[1]=10;
-					objstack->length[2]=10;
-					objstack->mass=20;
-                    body->setUserPointer(objstack);
-					m_dynamicsWorld->addRigidBody(body);
-
-					startTransform.setOrigin(btVector3(50,20,20));
-		            myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body2 = new btRigidBody(rbInfo2);
-					float pivinb[3]={-10,10,10};
-					objstack=new my_obj;
-					objstack->flag=1;
-					objstack->length[0]=10;
-				    objstack->length[1]=10;
-					objstack->length[2]=10;
-					objstack->mass=20;
-                    body2->setUserPointer(objstack);
-					m_dynamicsWorld->addRigidBody(body2);
-
-					addmyconstraint(m_dynamicsWorld, body, body2, pivina, pivinb);
-
-			/*		//btScalar mass=10;
-			        startTransform.setOrigin(btVector3(20,20,20));
-		            btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-					btRigidBody*  body = new btRigidBody(rbInfo);
-					btVector3 pivinA(15,10,10);
-					m_dynamicsWorld->addRigidBody(body);
-
-
-					startTransform.setOrigin(btVector3(50,20,20));
-		            myMotionState = new btDefaultMotionState(startTransform);
-					btRigidBody::btRigidBodyConstructionInfo rbInfo2(mass,myMotionState,colShape,localInertia);
-					btRigidBody* body2 = new btRigidBody(rbInfo2);
-					btVector3 pivinB(-15,10,10);
-					m_dynamicsWorld->addRigidBody(body2);
-
-					btTypedConstraint* p2p = new btPoint2PointConstraint(*body,*body2, pivinA, pivinB);
-					m_dynamicsWorld->addConstraint(p2p);
-					//p2p ->setBreakingImpulseThreshold(100.2);
-					p2p->setDbgDrawSize(btScalar(5.f));
-
-		*/
 	}
 
 
