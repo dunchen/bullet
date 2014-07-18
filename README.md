@@ -25,7 +25,8 @@ My code does its task in the sub-tick-callback during the stimulation of the bul
 I would to expand this prototype to include other collision shapes like sphere, compoundshape and triangle-mesh, but it was shown to be a very difficult task. In the next version, I would try to add the compound shape into the consideration.
 
 
-
+###What's new
+In this new version, the rigidbodies which are connected to each other with constraint can be applied into this plugin. 
 
 
 
@@ -37,3 +38,4 @@ I would to expand this prototype to include other collision shapes like sphere, 
 
 
 //yeti comes down from the jokul~~
+//but she never looks back
